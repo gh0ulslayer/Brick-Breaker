@@ -17,6 +17,7 @@ class board():
         for val in range(self._cols):
             self._grid[0][val] = Fore.WHITE + 'X'
             self._grid[self._rows - 1][val] = Fore.GREEN + 'X'
+            self._grid[self._rows - 2][val] = Fore.GREEN + 'X'
         
         for val in range(self._rows):
             self._grid[val][0] = Fore.WHITE + 'X'
