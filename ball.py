@@ -1,4 +1,4 @@
-from config import *
+import config
 import colorama
 from colorama import Fore, Back, Style
 import numpy as np
@@ -12,9 +12,10 @@ class ball_att():
         self._ypos = 43
         self._xvel = -1
         self._yvel = 3
-        self._design = Fore.YELLOW + '@'
-        
 
+        self._design = Fore.YELLOW  +  '⬤'
+        
+        
     def get_ball(self):
         return self._design
 
@@ -22,7 +23,13 @@ class ball_att():
         if(self._xpos > 1 and self._xpos < 24):
             self._xvel *= 1
         else:
-            self._xvel *= -1
+            if(self._xpos < 2):
+                self._xvel *= -1
+            elif(config.flag == 1):
+                self._xvel *= -1
+                # config.flag = 0      this is to be uncommented
+
+
         self._xpos += self._xvel
         
         return self._xpos 
