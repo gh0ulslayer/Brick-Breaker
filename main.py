@@ -25,13 +25,16 @@ if __name__ == "__main__":
     frames = config.frames
     game_back = board(rows,columns, frames)
     game_paddle = movee(config.rows,config.columns)
-    game_brick = brick2(config.rows,config.columns)
+    game_brick = brick3(config.rows,config.columns)
     game_ball = ball_att()
-    b4 = []
+    b1 = []
     for i in range(10):
-        b4.append(brick4(config.rows,config.columns))
+        b1.append(brick4(5  , 10 + i*5))
 
     while(1):
+        xcoords = []
+        ycoords = []
+
         #taking inputs
         if input.input_to():
             val = input.getch()
@@ -40,13 +43,13 @@ if __name__ == "__main__":
             if(val == 'q' or val == 'Q'):
                 break
             elif(val == "a" or val == "A"):
-                if(game_paddle._start > 1):
-                    game_paddle._start-=1
+                if(game_paddle._start > 2):
+                    game_paddle._start-=2
                 else:
                     game_paddle._start = 1
             elif(val == "d" or val == "D"):
-                if(game_paddle._start < 89- game_paddle._paddlelen):
-                    game_paddle._start+=1
+                if(game_paddle._start < 88- game_paddle._paddlelen):
+                    game_paddle._start+=2
                 else:
                     game_paddle._start = 89 - game_paddle._paddlelen  
             elif(val == "i"):
@@ -62,26 +65,79 @@ if __name__ == "__main__":
         
         ball_x = game_ball.get_xpos()
         ball_y = game_ball.get_ypos()
+        xcoords.append(ball_x - game_ball._xvel)
+        xcoords.append(ball_x)
+        ycoords.append(ball_y - game_ball._yvel)
+        ycoords.append(ball_y)
+        
         #filling ball in  grid
-        if(game_ball.get_ypos() < 89):
-            game_back._grid[ball_x][ball_y] = game_ball.get_ball()
+        game_back._grid[xcoords[0]][ycoords[0]] = game_ball.get_ball()
         
+
         #filling bricks
-        # for i in range(game_brick._thick):
-            # for j in range(game_brick._len):
-                    # game_back._grid[10+i][10+j] = game_brick.get_brick(i,j)
-        
         for k in range(10):
-            newbr = b4[k]
+            newbr = b1[k]
             for i in range(game_brick._thick):
                 for j in range(game_brick._len):
-                    game_back._grid[10+i][10+j+k + game_brick._len] = newbr.get_brick(i,j)
+                    game_back._grid[newbr._xpos][newbr._ypos + j] = newbr.get_brick(i,j)
             
         
         #collision between ball and paddle
         if(ball_y > game_paddle._start and ball_y < game_paddle._start + game_paddle._paddlelen and ball_x == 24):
             config.flag = 1
 
+
+        #collision between ball and bricks
+        for k in range(10):
+            newbr = b1[k]
+            xstart = newbr._xpos
+            xend = newbr._xpos + newbr._thick 
+            ystart = newbr._ypos
+            yend = newbr._ypos + newbr._len 
+            if(newbr._level == 0):
+                newbr._visible = 0
+            if(newbr._level > 0):
+                if(xcoords[0] > xcoords[1]):
+                    if(xcoords[1] == xend):
+                        if(ycoords[0] > ycoords[1]):
+                            if(yend > ycoords[1] and yend < ycoords[0]):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            if(ystart > ycoords[1] and ystart < ycoords[0]):
+                                newbr._level -= 1
+                                game_ball._xvel *= -1
+                        if(ycoords[1] > ycoords[0]):
+                            if(yend < ycoords[1] and yend > ycoords[0]):
+                                newbr._level -= 1
+                                game_ball._xvel *= -1
+                            if(ystart < ycoords[1] and ystart > ycoords[0]):
+                                newbr._level -= 1
+                                game_ball._xvel *= -1
+                else:
+                    if(xcoords[1] == xstart):
+                        if(ycoords[0] > ycoords[1]):
+                            if(yend > ycoords[1] and yend < ycoords[0]):
+                                newbr._level -= 1
+                                game_ball._xvel *= -1
+                            if(ystart > ycoords[1] and ystart < ycoords[0]):
+                                newbr._level -= 1
+                                game_ball._xvel *= -1
+                        if(ycoords[1] > ycoords[0]):
+                            if(yend < ycoords[1] and yend > ycoords[0]):
+                                newbr._level -= 1
+                                game_ball._xvel *= -1
+                            if(ystart < ycoords[1] and ystart > ycoords[0]):
+                                newbr._level -= 1
+                                game_ball._xvel *= -1
+        
+        for i in range(10):
+            newbr = b1[i]
+            if(newbr._level == 3):
+                b1[i] = brick3(newbr._xpos  , newbr._ypos)
+            if(newbr._level == 2):
+                b1[i] = brick2(newbr._xpos  , newbr._ypos)
+            if(newbr._level == 1):
+                b1[i] = brick1(newbr._xpos  , newbr._ypos)
         #printing the grid
         output_str = ""
         for row in range(rows):
@@ -90,6 +146,7 @@ if __name__ == "__main__":
             output_str += '\n'
         print('\033[H' + output_str)
 
+       
         #clearing the previous paddle
         if(game_paddle._start > 0 and game_paddle._start  < 89):
             for i in range(2):
@@ -102,9 +159,10 @@ if __name__ == "__main__":
                         game_paddle._start = 88
 
         #clearing the ball
-        game_back._grid[ball_x][ball_y] = ' '
+        if(ball_y < 89):
+            game_back._grid[xcoords[0]][ycoords[0]] = ' '
+        
         time.sleep(0.05)
-            # Object.render()
         
 
     input.show_cursor()

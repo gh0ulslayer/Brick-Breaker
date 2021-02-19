@@ -11,7 +11,7 @@ class ball_att():
         self._xpos = 20
         self._ypos = 43
         self._xvel = -1
-        self._yvel = 3
+        self._yvel = 4
 
         self._design = Fore.YELLOW  +  '⬤'
         
@@ -27,15 +27,15 @@ class ball_att():
                 self._xvel *= -1
             elif(config.flag == 1):
                 self._xvel *= -1
-                # config.flag = 0      this is to be uncommented
-
+                #config.flag = 0      
+                #uncomment before use
 
         self._xpos += self._xvel
         
         return self._xpos 
 
     def get_ypos(self):
-        if(self._ypos < 89 and self._ypos > 1):
+        if(self._ypos + self._yvel < 89 and self._ypos + self._yvel > 1):
             self._yvel *= 1
             self._ypos += self._yvel
         else:
