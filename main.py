@@ -28,8 +28,11 @@ if __name__ == "__main__":
     game_brick = brick3(config.rows,config.columns)
     game_ball = ball_att()
     b1 = []
+    b4 = []
     for i in range(10):
-        b1.append(brick4(5  , 10 + i*5))
+        b1.append(brick3(7  , 10 + i*7))
+    for i in range(3):
+        b4.append(brick4(4  , 30 + i*10))
 
     while(1):
         xcoords = []
@@ -80,7 +83,12 @@ if __name__ == "__main__":
             for i in range(game_brick._thick):
                 for j in range(game_brick._len):
                     game_back._grid[newbr._xpos][newbr._ypos + j] = newbr.get_brick(i,j)
-            
+        
+        for k in range(3):
+            newbr = b4[k]
+            for i in range(game_brick._thick):
+                for j in range(game_brick._len):
+                    game_back._grid[newbr._xpos][newbr._ypos + j] = newbr.get_brick(i,j)
         
         #collision between ball and paddle
         if(ball_y > game_paddle._start and ball_y < game_paddle._start + game_paddle._paddlelen and ball_x == 24):
@@ -130,6 +138,40 @@ if __name__ == "__main__":
                                 newbr._level -= 1
                                 game_ball._xvel *= -1
         
+        for k in range(3):
+            newbr = b4[k]
+            xstart = newbr._xpos
+            xend = newbr._xpos + newbr._thick 
+            ystart = newbr._ypos
+            yend = newbr._ypos + newbr._len 
+            if(newbr._level > 0):
+                if(xcoords[0] > xcoords[1]):
+                    if(xcoords[1] == xend):
+                        if(ycoords[0] > ycoords[1]):
+                            if(yend > ycoords[1] and yend < ycoords[0]):
+                                game_ball._xvel *= -1
+                            if(ystart > ycoords[1] and ystart < ycoords[0]):
+                                game_ball._xvel *= -1
+                        if(ycoords[1] > ycoords[0]):
+                            if(yend < ycoords[1] and yend > ycoords[0]):
+                                game_ball._xvel *= -1
+                            if(ystart < ycoords[1] and ystart > ycoords[0]):
+                                game_ball._xvel *= -1
+                else:
+                    if(xcoords[1] == xstart):
+                        if(ycoords[0] > ycoords[1]):
+                            if(yend > ycoords[1] and yend < ycoords[0]):
+                                game_ball._xvel *= -1
+                            if(ystart > ycoords[1] and ystart < ycoords[0]):
+                                game_ball._xvel *= -1
+                        if(ycoords[1] > ycoords[0]):
+                            if(yend < ycoords[1] and yend > ycoords[0]):
+                                game_ball._xvel *= -1
+                            if(ystart < ycoords[1] and ystart > ycoords[0]):
+                                game_ball._xvel *= -1
+        
+
+        #colour changing of bricks
         for i in range(10):
             newbr = b1[i]
             if(newbr._level == 3):
@@ -138,6 +180,7 @@ if __name__ == "__main__":
                 b1[i] = brick2(newbr._xpos  , newbr._ypos)
             if(newbr._level == 1):
                 b1[i] = brick1(newbr._xpos  , newbr._ypos)
+        
         #printing the grid
         output_str = ""
         for row in range(rows):
