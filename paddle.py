@@ -10,7 +10,7 @@ colorama.init()
 class movee():
     def __init__(self, rows , cols):
         self._start = 39
-        self._paddlelen = 25
+        self._paddlelen = 20
         self._design = ([[Fore.RED + '#' for col in range(self._paddlelen)]
                        for row in range(2)])
 

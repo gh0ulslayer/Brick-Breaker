@@ -11,7 +11,7 @@ class ball_att():
         self._xpos = 20
         self._ypos = 43
         self._xvel = -1
-        self._yvel = 4
+        self._yvel = 3
 
         self._design = Fore.YELLOW  +  '⬤'
         

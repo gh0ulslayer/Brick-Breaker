@@ -18,7 +18,7 @@ class brick4(brick):
 
     def __init__(self, rows , cols):
         super().__init__(rows, cols)
-        self._design = ([[Fore.YELLOW + '⛶' for col in range(self._len)]
+        self._design = ([[Fore.YELLOW + '▤' for col in range(self._len)]
                             for row in range(self._thick)])
         self._level = 4
     
@@ -32,7 +32,7 @@ class brick3(brick):
 
     def __init__(self, rows , cols):
         super().__init__(rows, cols)
-        self._design = ([[Fore.CYAN + '⛶' for col in range(self._len)]
+        self._design = ([[Fore.CYAN + '▤' for col in range(self._len)]
                             for row in range(self._thick)])
         self._level = 3
 
@@ -46,7 +46,7 @@ class brick2(brick):
 
     def __init__(self, rows , cols):
         super().__init__(rows, cols)
-        self._design = ([[Fore.BLUE + '⛶' for col in range(self._len)]
+        self._design = ([[Fore.BLUE + '▤' for col in range(self._len)]
                             for row in range(self._thick)])
         self._level = 2
 
@@ -61,7 +61,7 @@ class brick1(brick):
 
     def __init__(self, rows , cols):
         super().__init__(rows, cols)
-        self._design = ([[Fore.MAGENTA  +  '⛶' for col in range(self._len)]
+        self._design = ([[Fore.MAGENTA  +  '▤' for col in range(self._len)]
                             for row in range(self._thick)])
         self._level = 1
 
