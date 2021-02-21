@@ -47,7 +47,6 @@ if __name__ == "__main__":
                     game_paddle._start = 89 - game_paddle._paddlelen  
             elif(val == " "):
                 config.grab = 0
-                print(config.grab)
                 
             
             termios.tcflush(sys.stdin, termios.TCIOFLUSH)

@@ -188,7 +188,7 @@ def powerup_deactivate():
                     game_paddle._paddlelen += 2
                     game_paddle.change_paddle()
                 elif(newpr.position()[0] == Fore.WHITE + 'F'):
-                    game_ball._yvel /= 2
+                    game_ball._yvel //= 2
                 elif(newpr.position()[0] == Fore.WHITE + 'T'):
                         config.flag_tb = 0
                 elif(newpr.position()[0] == Fore.WHITE + 'G'):
