@@ -13,7 +13,7 @@ from paddle import *
 from ball import *
 from brick import *
 from powerup import *
-
+from random import *
 colorama.init()
 
 #variables start from here
@@ -26,9 +26,9 @@ game_back = board(rows,columns, frames)
 
 b1 = []
 for i in range(10):
-    b1.append(brick1(7  , 10 + i*7))
+    b1.append(brick1(7  , 8 + i*7))
 for i in range(10):
-    b1.append(brick2(9  , 10 + i*7))
+    b1.append(brick2(9  , 12 + i*7))
 for i in range(10):
     b1.append(brick3(11  , 10 + i*7))
 
@@ -43,27 +43,30 @@ for i in range(3):
     b4.append(brick4(4  , 30 + i*10))
 
 powers = []
-# for i in range(10):
-#     var = random.randint(0,2)
-#     powers.append(shrink_paddle(b1[i*3 + var]._xpos,b1[i*3 + var]._ypos))
+powerx = []
+powery = []
+
 for i in range(10):
-    powers.append(expand_paddle(b1[i]._xpos,b1[i]._ypos))
+    var = randint(0,2)
+    powers.append(expand_paddle(b1[3*i + var]._xpos,b1[3*i + var]._ypos))
+    powerx.append(b1[3*i+var]._xpos)
+    powery.append(b1[3*i+var]._ypos)
 
-#powerup_run bhi change krna hai iske bad
 
-powers[2] = grab_ball(b1[7]._xpos,b1[7]._ypos)
-powers[3] = grab_ball(b1[7]._xpos,b1[7]._ypos)
-powers[4] = shrink_paddle(b1[7]._xpos,b1[7]._ypos)
-powers[5] = thru_ball(b1[7]._xpos,b1[7]._ypos)
-powers[6] = thru_ball(b1[7]._xpos,b1[7]._ypos)
-powers[8] = fast_ball(b1[7]._xpos,b1[7]._ypos)
+powers[3] = shrink_paddle(powerx[3],powery[3])
+powers[4] = fast_ball(powerx[4],powery[4])
+powers[5] = thru_ball(powerx[5],powery[5])
+powers[0] = grab_ball(powerx[0],powery[0])
+powers[7] = fast_ball(powerx[7],powery[7])
+powers[9] = shrink_paddle(powerx[9],powery[9])
+
 powerup_timer = []
 for i in range(10):
     powerup_timer.append(0)
 
 bombs = []
 for i in range(6):
-    bombs.append(bomb_brick(10, 60 + i*4))
+    bombs.append(bomb_brick(5, 30 + i*5))
 
 #functions start from here
 
@@ -74,8 +77,6 @@ def show_ball():
         game_ball._xpos = 23 
         game_ball._ypos =  game_paddle._start + 4 
         game_back._grid[game_ball._xpos][game_ball._ypos] = game_ball.get_ball()
-        game_ball._xvel = -1
-        game_ball._yvel = 1
 
     else:
         game_back._grid[xcoords[0]][ycoords[0]] = game_ball.get_ball()
@@ -84,13 +85,14 @@ def show_ball():
 #powerup run
 def powerup_run():
     for i in range(10):
-        newbr = b1[i]
-        # newbr._level = 0
-        if(newbr._level == 0):
-            newpr = powers[i]
-            x_newpr = newpr.x_pos()
-            game_back._grid[x_newpr][powers[i].position()[2]] = powers[i].position()[0]
-            
+        for j in range(30):
+            if(b1[j]._xpos == powerx[i] and b1[j]._ypos == powery[i]):
+                newbr = b1[j]
+                if(newbr._level == 0):
+                    newpr = powers[i]
+                    x_newpr = newpr.x_pos()
+                    game_back._grid[x_newpr][powers[i].position()[2]] = powers[i].position()[0]
+
 #filling bricks in grid
 def show_brick():
     for k in range(30):
@@ -259,15 +261,13 @@ def coll_brick():
         xend = newbr._xpos + newbr._thick 
         ystart = newbr._ypos
         yend = newbr._ypos + newbr._len 
-        y_inter =  (game_ball._yvel / game_ball._xvel )*(xend - xcoords[0]) + ycoords[0]
         if(newbr._level == 0):
             newbr._visible = 0
+        # print(xcoords)
         if(newbr._level > 0):
             if(xcoords[0] > xcoords[1]):
-                # print(y_inter)
                 if(xcoords[1] == xend):
-                    if(ycoords[0] >= ycoords[1]):
-                        if(yend > ycoords[1] and yend < ycoords[0]):
+                        if(yend >= ycoords[1] and  ystart <= ycoords[1]):
                             config.score += 10
                             # print(config.score)
                             if(config.flag_tb == 0):
@@ -276,106 +276,33 @@ def coll_brick():
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
-                        if(ystart > ycoords[1] and ystart < ycoords[0]):
+                if(xcoords[1] == xstart):
+                        if(ycoords[1] == ystart or ycoords[1] == yend):
                             config.score += 10
                             # print(config.score)
                             if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(yend > ycoords[1] and ystart < ycoords[1]):
-                            config.score += 10
-                            # print(config.score)
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                    else:
-                        if(yend < ycoords[1] and yend > ycoords[0]):
-                            config.score += 10
-                            # print(config.score)
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[1] and ystart > ycoords[0]):
-                            config.score += 10
-                            # print(config.score)
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(yend > ycoords[0] and ystart < ycoords[0]):
-                            config.score += 10
-                            # print(config.score)
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
+                                game_ball._yvel *= -1
                                 newbr._level -= 1
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
             else:
                 if(xcoords[1] == xstart):
-                    if(ycoords[0] >= ycoords[1]):
-                        if(yend > ycoords[1] and yend < ycoords[0]):
+                    if(yend >= ycoords[1] and  ystart <= ycoords[1]):
+                        config.score += 10
+                        # print(config.score)
+                        if(config.flag_tb == 0):
+                            game_ball._xvel *= -1
+                            newbr._level -= 1
+                        else:
+                            newbr._level = 0
+                            newbr._visible = 0
+                if(xcoords[1] == xend):
+                        if(ycoords[1] == ystart or ycoords[1] == yend):
                             config.score += 10
                             # print(config.score)
                             if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart > ycoords[1] and ystart < ycoords[0]):
-                            config.score += 10
-                            # print(config.score)
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(yend > ycoords[1] and ystart < ycoords[1]):
-                            config.score += 10
-                            # print(config.score)
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                    else:
-                        if(yend < ycoords[1] and yend > ycoords[0]):
-                            config.score += 10
-                            # print(config.score)
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[1] and ystart > ycoords[0]):
-                            config.score += 10
-                            # print(config.score)
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(yend > ycoords[0] and ystart < ycoords[0]):
-                            config.score += 10
-                            # print(config.score)
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
+                                game_ball._yvel *= -1
                                 newbr._level -= 1
                             else:
                                 newbr._level = 0
@@ -390,86 +317,45 @@ def coll_brick():
         if(newbr._level > 0):
             if(xcoords[0] > xcoords[1]):
                 if(xcoords[1] == xend):
-                    if(ycoords[0] >= ycoords[1]):
-                        if(yend > ycoords[1] and yend < ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart > ycoords[1] and ystart < ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(yend > ycoords[1] and ystart < ycoords[1]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                    else:
-                        if(yend < ycoords[1] and yend > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[1] and ystart > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(yend > ycoords[0] and ystart < ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-            else:
+                    if(yend >= ycoords[1] and  ystart <= ycoords[1]):
+                        config.score += 10
+                        # print(config.score)
+                        if(config.flag_tb == 0):
+                            game_ball._xvel *= -1
+                        else:
+                            newbr._level = 0
+                            newbr._visible = 0
                 if(xcoords[1] == xstart):
-                    if(ycoords[0] >= ycoords[1]):
-                        if(yend > ycoords[1] and yend < ycoords[0]):
+                    if(ycoords[1] == ystart or ycoords[1] == yend):
+                        config.score += 10
+                        # print(config.score)
+                        if(config.flag_tb == 0):
+                            game_ball._yvel *= -1
+                        else:
+                            newbr._level = 0
+                            newbr._visible = 0
+            else:
+                if(xcoords[0] > xcoords[1]):
+                    if(xcoords[1] == xstart):
+                        if(yend >= ycoords[1] and  ystart <= ycoords[1]):
+                            config.score += 10
+                            # print(config.score)
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
-                        if(ystart > ycoords[1] and ystart < ycoords[0]):
+                    if(xcoords[1] == xend):
+                        if(ycoords[1] == ystart or ycoords[1] == yend):
+                            config.score += 10
+                            # print(config.score)
                             if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
+                                game_ball._yvel *= -1
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
-                        if(yend > ycoords[1] and ystart < ycoords[1]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                    else:
-                        if(yend < ycoords[1] and yend > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[1] and ystart > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(yend > ycoords[0] and ystart < ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-
-
+                    
+                
 
 #collision for explosive bricks
 def coll_explosive():
@@ -482,6 +368,71 @@ def coll_explosive():
         
         if(newbr._level == 0):
             newbr._visible = 0
+            for i in range(30):
+                topleftx = b1[i]._xpos
+                toplefty = b1[i]._ypos
+                bottomleftx = b1[i]._xpos + b1[i]._thick 
+                bottomlefty = b1[i]._ypos 
+                toprightx = b1[i]._xpos
+                toprighty = b1[i]._ypos + b1[i]._len
+                bottomrightx = b1[i]._xpos + b1[i]._thick
+                bottomrighty = b1[i]._ypos + b1[i]._len
+
+                if(xstart == bottomleftx):
+                    if(ystart >= bottomlefty and ystart <= bottomrighty):
+                        b1[i]._level = 0
+                        b1[i]._visible = 0
+                    if(yend >= bottomlefty and yend <= bottomrighty):
+                        b1[i]._visible = 0
+                        b1[i]._level = 0
+                if(xend == topleftx):
+                    if(ystart >= bottomlefty and ystart <= bottomrighty):
+                        b1[i]._visible = 0
+                        b1[i]._level = 0
+                    if(yend >= bottomlefty and yend <= bottomrighty):
+                        b1[i]._visible = 0
+                        b1[i]._level = 0
+                if(ystart == toprighty):
+                    if(xstart == topleftx):
+                        b1[i]._visible = 0
+                        b1[i]._level = 0
+                if(yend == toplefty):
+                    if(xstart == topleftx):
+                        b1[i]._visible = 0
+                        b1[i]._level = 0
+            
+            for i in range(3):
+                topleftx = b4[i]._xpos
+                toplefty = b4[i]._ypos
+                bottomleftx = b4[i]._xpos + b1[i]._thick 
+                bottomlefty = b4[i]._ypos 
+                toprightx = b4[i]._xpos
+                toprighty = b4[i]._ypos + b1[i]._len
+                bottomrightx = b4[i]._xpos + b1[i]._thick
+                bottomrighty = b4[i]._ypos + b1[i]._len
+
+                if(xstart == bottomleftx):
+                    if(ystart >= bottomlefty and ystart <= bottomrighty):
+                        b4[i]._level = 0
+                        b4[i]._visible = 0
+                    if(yend >= bottomlefty and yend <= bottomrighty):
+                        b4[i]._visible = 0
+                        b4[i]._level = 0
+                if(xend == topleftx):
+                    if(ystart >= bottomlefty and ystart <= bottomrighty):
+                        b4[i]._visible = 0
+                        b4[i]._level = 0
+                    if(yend >= bottomlefty and yend <= bottomrighty):
+                        b4[i]._visible = 0
+                        b4[i]._level = 0
+                if(ystart == toprighty):
+                    if(xstart == topleftx):
+                        b4[i]._visible = 0
+                        b4[i]._level = 0
+                if(yend == toplefty):
+                    if(xstart == topleftx):
+                        b4[i]._visible = 0
+                        b4[i]._level = 0
             if(k == 5):
                 bombs[k-1]._level = 0
             elif(k==0):
@@ -490,95 +441,48 @@ def coll_explosive():
                 bombs[k+1]._level = 0
                 bombs[k-1]._level = 0
 
+        
+            
+
         if(newbr._level > 0):
             if(xcoords[0] > xcoords[1]):
                 if(xcoords[1] == xend):
-                    if(ycoords[0] >= ycoords[1]):
-                        if(yend > ycoords[1] and yend < ycoords[0]):
+                        if(yend >= ycoords[1] and  ystart <= ycoords[1]):
+                            config.score += 10
+                            # print(config.score)
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
                                 newbr._level -= 1
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
-                        if(ystart > ycoords[1] and ystart < ycoords[0]):
+                if(xcoords[1] == xstart):
+                        if(ycoords[1] == ystart or ycoords[1] == yend):
+                            config.score += 10
+                            # print(config.score)
                             if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[1] and yend > ycoords[1]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                    if(ycoords[1] > ycoords[0]):
-                        if(yend < ycoords[1] and yend > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[1] and ystart > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[0] and yend > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
+                                game_ball._yvel *= -1
                                 newbr._level -= 1
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
             else:
                 if(xcoords[1] == xstart):
-                    if(ycoords[0] >= ycoords[1]):
-                        if(yend > ycoords[1] and yend < ycoords[0]):
+                    if(yend >= ycoords[1] and  ystart <= ycoords[1]):
+                        config.score += 10
+                        # print(config.score)
+                        if(config.flag_tb == 0):
+                            game_ball._xvel *= -1
+                            newbr._level -= 1
+                        else:
+                            newbr._level = 0
+                            newbr._visible = 0
+                if(xcoords[1] == xend):
+                        if(ycoords[1] == ystart or ycoords[1] == yend):
+                            config.score += 10
+                            # print(config.score)
                             if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart > ycoords[1] and ystart < ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[1] and yend > ycoords[1]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                    if(ycoords[1] > ycoords[0]):
-                        if(yend < ycoords[1] and yend > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[1] and ystart > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
-                                newbr._level -= 1
-                            else:
-                                newbr._level = 0
-                                newbr._visible = 0
-                        if(ystart < ycoords[0] and yend > ycoords[0]):
-                            if(config.flag_tb == 0):
-                                game_ball._xvel *= -1
+                                game_ball._yvel *= -1
                                 newbr._level -= 1
                             else:
                                 newbr._level = 0
