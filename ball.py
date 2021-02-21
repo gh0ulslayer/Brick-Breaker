@@ -11,7 +11,7 @@ class ball_att():
         self._xpos = 20
         self._ypos = 43
         self._xvel = -1
-        self._yvel = 3
+        self._yvel = 2
 
         self._design = Fore.YELLOW  +  '⬤'
         
@@ -27,7 +27,7 @@ class ball_att():
                 self._xvel *= -1
             elif(config.flag == 1):
                 self._xvel *= -1
-                config.flag = 0      
+                # config.flag = 0      
                 #uncomment before use
             elif(config.flag == 0):
                 config.lives -=1
