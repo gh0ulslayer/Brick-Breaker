@@ -71,7 +71,21 @@ class brick1(brick):
             return self._design[i][j]
         else:
             return ' '
-    
+
+class bomb_brick(brick):
+
+    def __init__(self, rows , cols):
+        super().__init__(rows, cols)
+        self._design = ([[Fore.LIGHTGREEN_EX  +  '▤' for col in range(self._len)]
+                            for row in range(self._thick)])
+        self._level = 1
+
+
+    def get_brick(self, i , j):
+        if(self._visible == 1):
+            return self._design[i][j]
+        else:
+            return ' '
    
     
 

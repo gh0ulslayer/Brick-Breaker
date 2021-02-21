@@ -32,7 +32,7 @@ if __name__ == "__main__":
     b4 = []
 
     for i in range(10):
-        b1.append(brick3(7  , 10 + i*7))
+        b1.append(brick1(7  , 10 + i*7))
     for i in range(3):
         b4.append(brick4(4  , 30 + i*10))
 
@@ -44,6 +44,10 @@ if __name__ == "__main__":
     powerup_timer = []
     for i in range(10):
         powerup_timer.append(0)
+
+    bombs = []
+    for i in range(6):
+        bombs.append(bomb_brick(10, 60 + i*3))
 
     while(1):
         xcoords = []
@@ -104,6 +108,12 @@ if __name__ == "__main__":
                 for j in range(game_brick._len):
                     game_back._grid[newbr._xpos][newbr._ypos + j] = newbr.get_brick(i,j)
         
+        for k in range(6):
+            newbr = bombs[k]
+            for i in range(game_brick._thick):
+                for j in range(game_brick._len):
+                    game_back._grid[newbr._xpos][newbr._ypos + j] = newbr.get_brick(i,j)
+        
         #powerup run
         for i in range(10):
             newbr = b1[i]
@@ -150,7 +160,6 @@ if __name__ == "__main__":
                     config.flag_tb = 1
                 
                 newpr._catched = 0 
-                config.flag_tb = 0
 
         
         #collision between ball and bricks
@@ -292,7 +301,89 @@ if __name__ == "__main__":
                                     newbr._level = 0
                                     newbr._visible = 0
         
+        #collision for explosive bricks
+        for k in range(6):
+            newbr = bombs[k]
+            xstart = newbr._xpos
+            xend = newbr._xpos + newbr._thick 
+            ystart = newbr._ypos
+            yend = newbr._ypos + newbr._len 
+            
+            if(newbr._level == 0):
+                newbr._visible = 0
+                if(k == 5):
+                    bombs[k-1]._level = 0
+                elif(k==0):
+                    bombs[k+1]._level = 0
+                else:
+                    bombs[k+1]._level = 0
+                    bombs[k-1]._level = 0
 
+            if(newbr._level > 0):
+                if(xcoords[0] > xcoords[1]):
+                    if(xcoords[1] == xend):
+                        if(ycoords[0] > ycoords[1]):
+                            if(yend > ycoords[1] and yend < ycoords[0]):
+                                if(config.flag_tb == 0):
+                                    game_ball._xvel *= -1
+                                    newbr._level -= 1
+                                else:
+                                    newbr._level = 0
+                                    newbr._visible = 0
+                            if(ystart > ycoords[1] and ystart < ycoords[0]):
+                                if(config.flag_tb == 0):
+                                    game_ball._xvel *= -1
+                                    newbr._level -= 1
+                                else:
+                                    newbr._level = 0
+                                    newbr._visible = 0
+                        if(ycoords[1] > ycoords[0]):
+                            if(yend < ycoords[1] and yend > ycoords[0]):
+                                if(config.flag_tb == 0):
+                                    game_ball._xvel *= -1
+                                    newbr._level -= 1
+                                else:
+                                    newbr._level = 0
+                                    newbr._visible = 0
+                            if(ystart < ycoords[1] and ystart > ycoords[0]):
+                                if(config.flag_tb == 0):
+                                    game_ball._xvel *= -1
+                                    newbr._level -= 1
+                                else:
+                                    newbr._level = 0
+                                    newbr._visible = 0
+                else:
+                    if(xcoords[1] == xstart):
+                        if(ycoords[0] > ycoords[1]):
+                            if(yend > ycoords[1] and yend < ycoords[0]):
+                                if(config.flag_tb == 0):
+                                    game_ball._xvel *= -1
+                                    newbr._level -= 1
+                                else:
+                                    newbr._level = 0
+                                    newbr._visible = 0
+                            if(ystart > ycoords[1] and ystart < ycoords[0]):
+                                if(config.flag_tb == 0):
+                                    game_ball._xvel *= -1
+                                    newbr._level -= 1
+                                else:
+                                    newbr._level = 0
+                                    newbr._visible = 0
+                        if(ycoords[1] > ycoords[0]):
+                            if(yend < ycoords[1] and yend > ycoords[0]):
+                                if(config.flag_tb == 0):
+                                    game_ball._xvel *= -1
+                                    newbr._level -= 1
+                                else:
+                                    newbr._level = 0
+                                    newbr._visible = 0
+                            if(ystart < ycoords[1] and ystart > ycoords[0]):
+                                if(config.flag_tb == 0):
+                                    game_ball._xvel *= -1
+                                    newbr._level -= 1
+                                else:
+                                    newbr._level = 0
+                                    newbr._visible = 0
            
         #colour changing of bricks
         for i in range(10):

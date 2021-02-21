@@ -111,3 +111,4 @@ class thru_ball(powerup):
                 self._xpos = 26 
 
         return self._xpos
+
