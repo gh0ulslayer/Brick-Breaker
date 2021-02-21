@@ -3,8 +3,8 @@ import colorama
 from colorama import Fore, Back, Style
 import numpy as np
 import random
-
 colorama.init()
+
 
 class ball_att():
     def __init__(self):
@@ -27,8 +27,13 @@ class ball_att():
                 self._xvel *= -1
             elif(config.flag == 1):
                 self._xvel *= -1
-                #config.flag = 0      
+                # config.flag = 0      
                 #uncomment before use
+            elif(config.flag == 0):
+                config.lives -=1
+                config.grab = 1
+                config.flag_gb = 0
+                self._xvel *= -1
 
         self._xpos += self._xvel
         

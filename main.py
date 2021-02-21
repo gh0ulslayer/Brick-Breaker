@@ -32,15 +32,15 @@ if __name__ == "__main__":
     b4 = []
 
     for i in range(10):
-        b1.append(brick1(7  , 10 + i*7))
+        b1.append(brick2(7  , 10 + i*7))
     for i in range(3):
         b4.append(brick4(4  , 30 + i*10))
 
     powers = []
     for i in range(10):
-        powers.append(expand_paddle(b1[i]._xpos,b1[i]._ypos))
+        powers.append(shrink_paddle(b1[i]._xpos,b1[i]._ypos))
 
-    powers[7] = thru_ball(b1[7]._xpos,b1[7]._ypos)
+    powers[7] = grab_ball(b1[7]._xpos,b1[7]._ypos)
     powerup_timer = []
     for i in range(10):
         powerup_timer.append(0)
@@ -49,6 +49,7 @@ if __name__ == "__main__":
     for i in range(6):
         bombs.append(bomb_brick(10, 60 + i*3))
 
+    config.time_start = time.time()
     while(1):
         xcoords = []
         ycoords = []
@@ -70,9 +71,10 @@ if __name__ == "__main__":
                     game_paddle._start+=2
                 else:
                     game_paddle._start = 89 - game_paddle._paddlelen  
-            elif(val == "i"):
-                game_paddle._paddlelen += 1
-                game_paddle.change_paddle()
+            elif(val == " "):
+                config.grab = 0
+                print(config.grab)
+                
             
             termios.tcflush(sys.stdin, termios.TCIOFLUSH)
             
@@ -89,7 +91,13 @@ if __name__ == "__main__":
         ycoords.append(ball_y)
         
         #filling ball in  grid
-        game_back._grid[xcoords[0]][ycoords[0]] = game_ball.get_ball()
+        if(config.grab == 1):
+            game_ball._xpos = 23 
+            game_ball._ypos =  game_paddle._start + 4 
+            game_back._grid[game_ball._xpos][game_ball._ypos] = game_ball.get_ball()
+        else:
+            game_back._grid[xcoords[0]][ycoords[0]] = game_ball.get_ball()
+
         
         #filling the powerups
         # //for i in range(10):
@@ -127,40 +135,71 @@ if __name__ == "__main__":
         #collision between ball and paddle
         if(ball_y > game_paddle._start and ball_y < game_paddle._start + game_paddle._paddlelen and ball_x == 24):
             config.flag = 1
-            if(ball_y < game_paddle._start + game_paddle._paddlelen/4):
-                game_ball._yvel -= 2
-            elif(ball_y < game_paddle._start + game_paddle._paddlelen/2):
-                game_ball._yvel -= 1
-            elif(ball_y < game_paddle._start + game_paddle._paddlelen*3/4):
-                game_ball._yvel += 1
+            if(config.flag_gb == 1):
+                config.grab = 1
             else:
-                game_ball._yvel += 2
+                if(ball_y < game_paddle._start + game_paddle._paddlelen/4):
+                    game_ball._yvel -= 2
+                elif(ball_y < game_paddle._start + game_paddle._paddlelen/2):
+                    game_ball._yvel -= 1
+                elif(ball_y < game_paddle._start + game_paddle._paddlelen*3/4):
+                    game_ball._yvel += 1
+                else:
+                    game_ball._yvel += 2
 
         #collision between powerup and paddle
         for i in range(10):
             newpr = powers[i]
             if( newpr._ypos > game_paddle._start and newpr._ypos < game_paddle._start + game_paddle._paddlelen and newpr._xpos == 24):
                 powers[i]._catched = 1
-                print((newpr.position()[0]))
+                powerup_timer[i]= time.time()
+                # print((newpr.position()[0]))
 
 
         #activating the powerups
         for i in range(10):
             newpr = powers[i]
             if(newpr._catched == 1):
-                if(newpr.position()[0] == Fore.WHITE + 'E'):
+                if(newpr.position()[0] == Fore.WHITE + '►'):
                     game_paddle._paddlelen += 2
                     game_paddle.change_paddle()
-                elif(newpr.position()[0] == Fore.WHITE + 'S'):
+                elif(newpr.position()[0] == Fore.WHITE + '◄'):
                     game_paddle._paddlelen -= 2
                     game_paddle.change_paddle()
                 elif(newpr.position()[0] == Fore.WHITE + 'F'):
                     game_ball._yvel *= 2
                 elif(newpr.position()[0] == Fore.WHITE + 'T'):
-                    config.flag_tb = 1
+                        config.flag_tb = 1
+                elif(newpr.position()[0] == Fore.WHITE + 'G'):
+                        config.flag_gb = 1
                 
                 newpr._catched = 0 
 
+        #powerup deactivate
+        for i in range(10):
+            newpr = powers[i]
+            t = time.time()
+            
+            if(powerup_timer[i] > 0):
+                # print(powerup_timer[i],t)
+
+                if(t - powerup_timer[i] > 10 ):
+                    if(newpr.position()[0] == Fore.WHITE + '►'):
+                        game_paddle._paddlelen -= 2
+                        game_paddle.change_paddle()
+                    elif(newpr.position()[0] == Fore.WHITE + '◄'):
+                        game_paddle._paddlelen += 2
+                        game_paddle.change_paddle()
+                    elif(newpr.position()[0] == Fore.WHITE + 'F'):
+                        game_ball._yvel /= 2
+                    elif(newpr.position()[0] == Fore.WHITE + 'T'):
+                            config.flag_tb = 0
+                    elif(newpr.position()[0] == Fore.WHITE + 'G'):
+                            config.flag_gb = 0
+                    powerup_timer[i] = 0
+
+
+                newpr._catched = 0 
         
         #collision between ball and bricks
         for k in range(10):
@@ -176,6 +215,8 @@ if __name__ == "__main__":
                     if(xcoords[1] == xend):
                         if(ycoords[0] > ycoords[1]):
                             if(yend > ycoords[1] and yend < ycoords[0]):
+                                config.score += 10
+                                # print(config.score)
                                 if(config.flag_tb == 0):
                                     game_ball._xvel *= -1
                                     newbr._level -= 1
@@ -183,6 +224,8 @@ if __name__ == "__main__":
                                     newbr._level = 0
                                     newbr._visible = 0
                             if(ystart > ycoords[1] and ystart < ycoords[0]):
+                                config.score += 10
+                                # print(config.score)
                                 if(config.flag_tb == 0):
                                     game_ball._xvel *= -1
                                     newbr._level -= 1
@@ -191,6 +234,8 @@ if __name__ == "__main__":
                                     newbr._visible = 0
                         if(ycoords[1] > ycoords[0]):
                             if(yend < ycoords[1] and yend > ycoords[0]):
+                                config.score += 10
+                                # print(config.score)
                                 if(config.flag_tb == 0):
                                     game_ball._xvel *= -1
                                     newbr._level -= 1
@@ -198,6 +243,8 @@ if __name__ == "__main__":
                                     newbr._level = 0
                                     newbr._visible = 0
                             if(ystart < ycoords[1] and ystart > ycoords[0]):
+                                config.score += 10
+                                # print(config.score)
                                 if(config.flag_tb == 0):
                                     game_ball._xvel *= -1
                                     newbr._level -= 1
@@ -208,6 +255,8 @@ if __name__ == "__main__":
                     if(xcoords[1] == xstart):
                         if(ycoords[0] > ycoords[1]):
                             if(yend > ycoords[1] and yend < ycoords[0]):
+                                config.score += 10
+                                # print(config.score)
                                 if(config.flag_tb == 0):
                                     game_ball._xvel *= -1
                                     newbr._level -= 1
@@ -215,6 +264,8 @@ if __name__ == "__main__":
                                     newbr._level = 0
                                     newbr._visible = 0
                             if(ystart > ycoords[1] and ystart < ycoords[0]):
+                                config.score += 10
+                                # print(config.score)
                                 if(config.flag_tb == 0):
                                     game_ball._xvel *= -1
                                     newbr._level -= 1
@@ -223,6 +274,8 @@ if __name__ == "__main__":
                                     newbr._visible = 0
                         if(ycoords[1] > ycoords[0]):
                             if(yend < ycoords[1] and yend > ycoords[0]):
+                                config.score += 10
+                                # print(config.score)
                                 if(config.flag_tb == 0):
                                     game_ball._xvel *= -1
                                     newbr._level -= 1
@@ -230,6 +283,8 @@ if __name__ == "__main__":
                                     newbr._level = 0
                                     newbr._visible = 0
                             if(ystart < ycoords[1] and ystart > ycoords[0]):
+                                config.score += 10
+                                # print(config.score)
                                 if(config.flag_tb == 0):
                                     game_ball._xvel *= -1
                                     newbr._level -= 1
@@ -401,32 +456,49 @@ if __name__ == "__main__":
             for col in range(columns):
                     output_str += game_back.get_grid(row,col)
             output_str += '\n'
+        
+        arr = []
+        arr.append(config.lives)
+        arr.append(config.score)
+        config.time_played = time.time() - config.time_start
+        arr.append(config.time_played)
+        output_str += "Lives_remaining = "
+        output_str += str(arr[0])
+        output_str += "     "
+        output_str += "Score = "
+        output_str += str(arr[1])
+        output_str += "     "
+        output_str += "Time_played = "
+        output_str += str(arr[2])
+        output_str += " "
+        output_str += '\n'
+
         print('\033[H' + output_str)
 
        
-        #clearing the previous paddle
-        if(game_paddle._start > 0 and game_paddle._start  < 89):
-            for i in range(2):
-                for j in range(game_paddle._paddlelen):
-                    if(game_paddle._start  < 89 and game_paddle._start > 0):
-                        game_back._grid[25+i][game_paddle._start+j] = ' '
-                    elif(game_paddle._start < 1):
-                        game_paddle._start = 1
-                    elif(game_paddle._start > 89):
-                        game_paddle._start = 88
+        # #clearing the previous paddle
+        # if(game_paddle._start > 0 and game_paddle._start  < 89):
+        #     for i in range(2):
+        #         for j in range(game_paddle._paddlelen):
+        #             if(game_paddle._start  < 89 and game_paddle._start > 0):
+        #                 game_back._grid[25+i][game_paddle._start+j] = ' '
+        #             elif(game_paddle._start < 1):
+        #                 game_paddle._start = 1
+        #             elif(game_paddle._start > 89):
+        #                 game_paddle._start = 88
 
-        #clearing the ball
-        if(ball_y < 89):
-            game_back._grid[xcoords[0]][ycoords[0]] = ' '
+        # #clearing the ball
+        # if(ball_y < 89):
+        #     game_back._grid[xcoords[0]][ycoords[0]] = ' '
         
-        #clearing the powerup
-        for i in range(10):
-            game_back._grid[powers[i]._xpos][powers[i]._ypos] = ' '
-            # print()
+        # #clearing the powerup
+        # for i in range(10):
+        #     game_back._grid[powers[i]._xpos][powers[i]._ypos] = ' '
+        #     # print()
     
-        # for i in range(1,config.rows-1):
-        #     for j in range(1,config.columns-1):
-        #         game_back._grid[i][j] = ' '
+        for i in range(1,config.rows-1):
+            for j in range(1,config.columns-1):
+                game_back._grid[i][j] = ' '
         
         time.sleep(0.05)
         
