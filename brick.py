@@ -9,7 +9,7 @@ colorama.init()
 class brick():
     def __init__(self, rows , cols):
         self._thick = 1
-        self._len = 3
+        self._len = 4
         self._xpos = rows
         self._ypos = cols
         self._visible = 1

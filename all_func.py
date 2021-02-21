@@ -47,18 +47,23 @@ powers = []
 #     var = random.randint(0,2)
 #     powers.append(shrink_paddle(b1[i*3 + var]._xpos,b1[i*3 + var]._ypos))
 for i in range(10):
-    powers.append(shrink_paddle(b1[i]._xpos,b1[i]._ypos))
+    powers.append(expand_paddle(b1[i]._xpos,b1[i]._ypos))
 
 #powerup_run bhi change krna hai iske bad
 
-powers[7] = grab_ball(b1[7]._xpos,b1[7]._ypos)
+powers[2] = grab_ball(b1[7]._xpos,b1[7]._ypos)
+powers[3] = grab_ball(b1[7]._xpos,b1[7]._ypos)
+powers[4] = shrink_paddle(b1[7]._xpos,b1[7]._ypos)
+powers[5] = thru_ball(b1[7]._xpos,b1[7]._ypos)
+powers[6] = thru_ball(b1[7]._xpos,b1[7]._ypos)
+powers[8] = fast_ball(b1[7]._xpos,b1[7]._ypos)
 powerup_timer = []
 for i in range(10):
     powerup_timer.append(0)
 
 bombs = []
 for i in range(6):
-    bombs.append(bomb_brick(10, 60 + i*3))
+    bombs.append(bomb_brick(10, 60 + i*4))
 
 #functions start from here
 
@@ -70,7 +75,7 @@ def show_ball():
         game_ball._ypos =  game_paddle._start + 4 
         game_back._grid[game_ball._xpos][game_ball._ypos] = game_ball.get_ball()
         game_ball._xvel = -1
-        game_ball._yvel = 2
+        game_ball._yvel = 1
 
     else:
         game_back._grid[xcoords[0]][ycoords[0]] = game_ball.get_ball()
@@ -85,6 +90,7 @@ def powerup_run():
             newpr = powers[i]
             x_newpr = newpr.x_pos()
             game_back._grid[x_newpr][powers[i].position()[2]] = powers[i].position()[0]
+            
 #filling bricks in grid
 def show_brick():
     for k in range(30):
@@ -253,13 +259,14 @@ def coll_brick():
         xend = newbr._xpos + newbr._thick 
         ystart = newbr._ypos
         yend = newbr._ypos + newbr._len 
+        y_inter =  (game_ball._yvel / game_ball._xvel )*(xend - xcoords[0]) + ycoords[0]
         if(newbr._level == 0):
             newbr._visible = 0
-        # print(xcoords)
         if(newbr._level > 0):
             if(xcoords[0] > xcoords[1]):
+                # print(y_inter)
                 if(xcoords[1] == xend):
-                    if(ycoords[0] > ycoords[1]):
+                    if(ycoords[0] >= ycoords[1]):
                         if(yend > ycoords[1] and yend < ycoords[0]):
                             config.score += 10
                             # print(config.score)
@@ -278,7 +285,16 @@ def coll_brick():
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
-                    if(ycoords[1] > ycoords[0]):
+                        if(yend > ycoords[1] and ystart < ycoords[1]):
+                            config.score += 10
+                            # print(config.score)
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                    else:
                         if(yend < ycoords[1] and yend > ycoords[0]):
                             config.score += 10
                             # print(config.score)
@@ -297,9 +313,18 @@ def coll_brick():
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
+                        if(yend > ycoords[0] and ystart < ycoords[0]):
+                            config.score += 10
+                            # print(config.score)
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
             else:
                 if(xcoords[1] == xstart):
-                    if(ycoords[0] > ycoords[1]):
+                    if(ycoords[0] >= ycoords[1]):
                         if(yend > ycoords[1] and yend < ycoords[0]):
                             config.score += 10
                             # print(config.score)
@@ -318,9 +343,35 @@ def coll_brick():
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
+                        if(yend > ycoords[1] and ystart < ycoords[1]):
+                            config.score += 10
+                            # print(config.score)
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                    else:
+                        if(yend < ycoords[1] and yend > ycoords[0]):
+                            config.score += 10
+                            # print(config.score)
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            else:
                                 newbr._level = 0
                                 newbr._visible = 0
                         if(ystart < ycoords[1] and ystart > ycoords[0]):
+                            config.score += 10
+                            # print(config.score)
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                        if(yend > ycoords[0] and ystart < ycoords[0]):
                             config.score += 10
                             # print(config.score)
                             if(config.flag_tb == 0):
@@ -339,7 +390,7 @@ def coll_brick():
         if(newbr._level > 0):
             if(xcoords[0] > xcoords[1]):
                 if(xcoords[1] == xend):
-                    if(ycoords[0] > ycoords[1]):
+                    if(ycoords[0] >= ycoords[1]):
                         if(yend > ycoords[1] and yend < ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
@@ -352,7 +403,13 @@ def coll_brick():
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
-                    if(ycoords[1] > ycoords[0]):
+                        if(yend > ycoords[1] and ystart < ycoords[1]):
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                    else:
                         if(yend < ycoords[1] and yend > ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
@@ -360,6 +417,12 @@ def coll_brick():
                                 newbr._level = 0
                                 newbr._visible = 0
                         if(ystart < ycoords[1] and ystart > ycoords[0]):
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                        if(yend > ycoords[0] and ystart < ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
                             else:
@@ -367,7 +430,7 @@ def coll_brick():
                                 newbr._visible = 0
             else:
                 if(xcoords[1] == xstart):
-                    if(ycoords[0] > ycoords[1]):
+                    if(ycoords[0] >= ycoords[1]):
                         if(yend > ycoords[1] and yend < ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
@@ -380,7 +443,13 @@ def coll_brick():
                             else:
                                 newbr._level = 0
                                 newbr._visible = 0
-                    if(ycoords[1] > ycoords[0]):
+                        if(yend > ycoords[1] and ystart < ycoords[1]):
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                    else:
                         if(yend < ycoords[1] and yend > ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
@@ -388,6 +457,12 @@ def coll_brick():
                                 newbr._level = 0
                                 newbr._visible = 0
                         if(ystart < ycoords[1] and ystart > ycoords[0]):
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                        if(yend > ycoords[0] and ystart < ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
                             else:
@@ -418,7 +493,7 @@ def coll_explosive():
         if(newbr._level > 0):
             if(xcoords[0] > xcoords[1]):
                 if(xcoords[1] == xend):
-                    if(ycoords[0] > ycoords[1]):
+                    if(ycoords[0] >= ycoords[1]):
                         if(yend > ycoords[1] and yend < ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
@@ -427,6 +502,13 @@ def coll_explosive():
                                 newbr._level = 0
                                 newbr._visible = 0
                         if(ystart > ycoords[1] and ystart < ycoords[0]):
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                        if(ystart < ycoords[1] and yend > ycoords[1]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
                                 newbr._level -= 1
@@ -442,6 +524,13 @@ def coll_explosive():
                                 newbr._level = 0
                                 newbr._visible = 0
                         if(ystart < ycoords[1] and ystart > ycoords[0]):
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                        if(ystart < ycoords[0] and yend > ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
                                 newbr._level -= 1
@@ -450,7 +539,7 @@ def coll_explosive():
                                 newbr._visible = 0
             else:
                 if(xcoords[1] == xstart):
-                    if(ycoords[0] > ycoords[1]):
+                    if(ycoords[0] >= ycoords[1]):
                         if(yend > ycoords[1] and yend < ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
@@ -459,6 +548,13 @@ def coll_explosive():
                                 newbr._level = 0
                                 newbr._visible = 0
                         if(ystart > ycoords[1] and ystart < ycoords[0]):
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                        if(ystart < ycoords[1] and yend > ycoords[1]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
                                 newbr._level -= 1
@@ -474,6 +570,13 @@ def coll_explosive():
                                 newbr._level = 0
                                 newbr._visible = 0
                         if(ystart < ycoords[1] and ystart > ycoords[0]):
+                            if(config.flag_tb == 0):
+                                game_ball._xvel *= -1
+                                newbr._level -= 1
+                            else:
+                                newbr._level = 0
+                                newbr._visible = 0
+                        if(ystart < ycoords[0] and yend > ycoords[0]):
                             if(config.flag_tb == 0):
                                 game_ball._xvel *= -1
                                 newbr._level -= 1

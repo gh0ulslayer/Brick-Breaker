@@ -64,37 +64,26 @@ if __name__ == "__main__":
         all_func.ycoords.append(all_func.ball_y - game_ball._yvel)
         all_func.ycoords.append(all_func.ball_y)
        
-
         show_ball()
-        
 
-        #filling bricks
         show_brick()
         
-        #powerup run
         powerup_run()
 
-        #collision between ball and paddle
         coll_paddle()
 
-        #collision between powerup and paddle
         coll_powerup()
-                # print((newpr.position()[0]))
 
-
-        #activating the powerups
         activating_powerup()
 
-        #powerup deactivate
         powerup_deactivate()
         
         coll_brick()
         
         coll_explosive()    
-       #brick colour change
+
         colour_change()
 
-        #printing the grid
         show_grid()
         
         clear_grid()
