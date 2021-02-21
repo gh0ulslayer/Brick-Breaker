@@ -33,6 +33,11 @@ if __name__ == "__main__":
 
     for i in range(10):
         b1.append(brick2(7  , 10 + i*7))
+    for i in range(10):
+        b1.append(brick1(9  , 10 + i*7))
+    for i in range(10):
+        b1.append(brick3(11  , 10 + i*7))
+    
     for i in range(3):
         b4.append(brick4(4  , 30 + i*10))
 
@@ -63,12 +68,12 @@ if __name__ == "__main__":
                 break
             elif(val == "a" or val == "A"):
                 if(game_paddle._start > 2):
-                    game_paddle._start-=2
+                    game_paddle.move_left(2)
                 else:
                     game_paddle._start = 1
             elif(val == "d" or val == "D"):
-                if(game_paddle._start < 88- game_paddle._paddlelen):
-                    game_paddle._start+=2
+                if(game_paddle._start < 88 - game_paddle._paddlelen):
+                    game_paddle.move_right(2)
                 else:
                     game_paddle._start = 89 - game_paddle._paddlelen  
             elif(val == " "):
@@ -104,7 +109,7 @@ if __name__ == "__main__":
         #   game_back._grid[powers[i].position()[1]][powers[i].position()[2]] = powers[i].position()[0]
 
         #filling bricks
-        for k in range(10):
+        for k in range(30):
             newbr = b1[k]
             for i in range(game_brick._thick):
                 for j in range(game_brick._len):
@@ -202,7 +207,7 @@ if __name__ == "__main__":
                 newpr._catched = 0 
         
         #collision between ball and bricks
-        for k in range(10):
+        for k in range(30):
             newbr = b1[k]
             xstart = newbr._xpos
             xend = newbr._xpos + newbr._thick 
@@ -441,7 +446,7 @@ if __name__ == "__main__":
                                     newbr._visible = 0
            
         #colour changing of bricks
-        for i in range(10):
+        for i in range(30):
             newbr = b1[i]
             if(newbr._level == 3):
                 b1[i] = brick3(newbr._xpos  , newbr._ypos)
@@ -500,6 +505,28 @@ if __name__ == "__main__":
             for j in range(1,config.columns-1):
                 game_back._grid[i][j] = ' '
         
+        if(config.lives == 0): 
+            for i in range(1,config.rows-1):
+                for j in range(1,config.columns-1):
+                    game_back._grid[i][j] = ' '
+            
+            game_back._grid[15][40] = Fore.RED  + 'G'
+            game_back._grid[15][41] = Fore.RED  + 'A'
+            game_back._grid[15][42] = Fore.RED  + 'M'
+            game_back._grid[15][43] = Fore.RED  + 'E'
+            game_back._grid[15][46] = Fore.RED  + 'O'
+            game_back._grid[15][47] = Fore.RED  + 'V'
+            game_back._grid[15][48] = Fore.RED  + 'E'
+            game_back._grid[15][49] = Fore.RED  + 'R'
+
+            output_strr = ""
+            for row in range(rows):
+                for col in range(columns):
+                        output_strr += game_back.get_grid(row,col)
+                output_strr += '\n'
+            print('\033[H' + output_strr)
+            
+            break
         time.sleep(0.05)
         
 

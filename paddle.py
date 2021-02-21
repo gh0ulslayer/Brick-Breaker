@@ -27,6 +27,11 @@ class movee():
     def get_paddle(self, i , j):
         return self._design[i][j]
     
+    def move_right(self, i ):
+        self._start += i
+
+    def move_left(self, i ):
+        self._start -= i
 
 
 
